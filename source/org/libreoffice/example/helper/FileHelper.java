@@ -7,6 +7,10 @@ import java.net.URL;
 
 import com.sun.star.deployment.PackageInformationProvider;
 import com.sun.star.deployment.XPackageInformationProvider;
+import com.sun.star.frame.XDesktop;
+import com.sun.star.lang.XComponent;
+import com.sun.star.lang.XMultiComponentFactory;
+import com.sun.star.text.XTextDocument;
 import com.sun.star.uno.Exception;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
@@ -54,6 +58,32 @@ public class FileHelper {
 			return null;
 		}
         return f;
+	}
+	
+	public static XDesktop getCurrentDesktop(XComponentContext xContext) {
+		XMultiComponentFactory xMCF = (XMultiComponentFactory) UnoRuntime.queryInterface(XMultiComponentFactory.class,
+				xContext.getServiceManager());
+        Object desktop = null;
+		try {
+			desktop = xMCF.createInstanceWithContext("com.sun.star.frame.Desktop", xContext);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        return (XDesktop) UnoRuntime.queryInterface(com.sun.star.frame.XDesktop.class, desktop);
+	}
+	
+	/** Returns the current XComponent */
+    private static XComponent getCurrentComponent(XComponentContext xContext) {
+        return (XComponent) getCurrentDesktop(xContext).getCurrentComponent();
+    }
+
+    /** Returns the current XTextDocument */
+	public static XTextDocument getCurrentDocument(XComponentContext xContext) {
+        XComponent component = null;
+        component = getCurrentComponent(xContext);
+
+        XTextDocument document = (XTextDocument) UnoRuntime.queryInterface(XTextDocument.class, component);
+        return document;
 	}
 
 }
